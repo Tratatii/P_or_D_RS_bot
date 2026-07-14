@@ -305,8 +305,7 @@ def send_welcome(message):
     bot.reply_to(
         message, 
         "Привет! Выбирай, дорогуша, правда или действие? 😈 ", 
-        reply_markup=get_keyboard()
-    )
+        reply_markup=get_keyboard() )
 
 next_player_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 btn_next = telebot.types.KeyboardButton("Выбор следующему участнику ➡️")
