@@ -349,6 +349,11 @@ def callback_listener(call):
             bot.answer_callback_query(call.id, text="Эй, щас не твой ход! Жди своей очереди 😡", show_alert=True)
             return
 
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except Exception as e:
+            print(f"Ошибка удаления: {e}")
+
         if action == "truth":
             random_truth = random.choice(TRUTHS)
             bot.send_message(call.message.chat.id, f"💫 Ваш вопрос:\n\n{random_truth}", reply_markup=get_next_player_keyboard())
