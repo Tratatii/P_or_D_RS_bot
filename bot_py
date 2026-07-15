@@ -337,7 +337,7 @@ def callback_listener(call):
         else:
             name = call.from_user.first_name
             
-        next_markup = get_keyboards(call.from_user.id)
+        next_markup = get_keyboard(call.from_user.id)
         bot.send_message(
             call.message.chat.id,
             f"Иоу теперь ход @{name}! Выбирай, дорогуша, правда или действие? 🟪", # Запятая удалена
