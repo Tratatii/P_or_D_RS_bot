@@ -1,4 +1,4 @@
-import os
+8import os
 import telebot
 import random
 from flask import Flask
@@ -332,14 +332,19 @@ def send_welcome(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_listener(call):
     if call.data == "next_player":
-        name = call.from_user.username or call.from_user.first_name
-        next_markup = get_keyboard(call.from_user.id)
+        if call.from_user.username:
+            name = f"@{call.from_user.username}"
+        else:
+            name = call.from_user.first_name
+            
+        next_markup = get_keyboards(call.from_user.id)
         bot.send_message(
-            call.message.chat.id, 
-            f"Йоу теперь ход {name}! Выбирай, дорогуша, правда или действие? 😈", 
+            call.message.chat.id,
+            f"Иоу теперь ход @{name}! Выбирай, дорогуша, правда или действие? 🟪", # Запятая удалена
             reply_markup=next_markup)
         bot.answer_callback_query(call.id)
         return
+
 
     if "_" in call.data:
         action, allowed_user_id = call.data.split("_")
@@ -371,4 +376,6 @@ if __name__ == "__main__":
     print("Запуск фейкового веб-сервера...")
     threading.Thread(target=run_flask, daemon=True).start() 
     print("Бот успешно запущен...")
-    bot.infinity_polling()
+    bot.delete_webhook(drop_pending_updates=True)
+bot.infinity_polling(skip_pending=True)
+
