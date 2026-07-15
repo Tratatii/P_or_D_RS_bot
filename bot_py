@@ -291,6 +291,8 @@ DARES = [
     "Придумай каждому игроку смешное прозвище",
     "Напиши сообщение, так чтобы все слова начинались на букву *с*",
     "Пиши *ирис вероятность, что я бяка*, пусть все посмеются над большими процентами",
+    "Нарисуй цветочек, который у тебя ассоциируется со следующим и предыдущим игрокамм",
+    "Нарисуй себя в виде животного (ода фурри)",
     "Я устала думайте сами" ]
 
 def get_keyboard():
@@ -316,7 +318,7 @@ def handle_game(message):
         random_truth = random.choice(TRUTHS)
         bot.reply_to(message, f"💫 Ваш вопрос:\n{random_truth}", reply_markup=next_player_markup)
 
-elif message.text == "✨ Ваше задание:":
+    elif message.text == "✨ Ваше задание:":
         random_dare = random.choice(DARES)
         bot.reply_to(message, f"✨ Ваше задание:\n{random_dare}", reply_markup=next_player_markup)
         
