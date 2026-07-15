@@ -300,52 +300,57 @@ DARES = [
     "Скинь фото своих глаз",
     "Я устала думайте сами" ]
 
-def get_keyboard():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+def get_keyboard(target_user_id):
+    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
     btn_truth = telebot.types.InlineKeyboardButton("🌹 Правда", callback_data=f"truth_{target_user_id}")
     btn_dare = telebot.types.InlineKeyboardButton("🥀 Действие", callback_data=f"dare_{target_user_id}")
     markup.add(btn_truth, btn_dare)
     return markup
+
 def get_next_player_keyboard():
     markup = telebot.types.InlineKeyboardMarkup()
     btn_next = telebot.types.InlineKeyboardButton("Выбор следующему участнику ➡️", callback_data="next_player")
     markup.add(btn_next)
     return markup
 
-@bot.message_handler(func=lambda message: message.text.lower() in [ "п/д", "играем в п/д", "давайте играть в п/д", "давайте играть в правду или действие" ])
+@bot.message_handler(func=lambda message: message.text.lower() in ["п/д", "играем в п/д", "давайте играть в п/д", "давайте играть в правду или действие"])
 def send_welcome(message):
-    bot.reply_to(message, "Привет! Выбирай, дорогуша, правда или действие? 😈 ", reply_markup=get_keyboard())
-next_player_markup = telebot.types.InlineKeyboardMarkup()
-next_player_markup.add(telebot.types.InlineKeyboardButton("Выбор следующему участнику ➡️", callback_data="next_player"))
+    user_id = message.from_user.id
+    bot.reply_to(message, "Привет! Выбирай, дорогуша, правда или действие? 😈", reply_markup=get_keyboard(user_id))
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_listener(call):
     if call.data == "next_player":
+        name = call.from_user.username or call.from_user.first_name
+        next_markup = get_keyboard(call.from_user.id)
         bot.send_message(
             call.message.chat.id, 
-            f"Йоу теперь ходит @{call.from_user.username or call.from_user.first_name}! Выбирай, дорогуша, правда или действие? 😈", 
-            reply_markup=get_inline_keyboard(call.from_user.id))
+            f"Йоу теперь ход {name}! Выбирай, дорогуша, правда или действие? 😈", 
+            reply_markup=next_markup)
         bot.answer_callback_query(call.id)
         return
 
-    action, allowed_user_id = call.data.split("_")
-    allowed_user_id = int(allowed_user_id)
+    if "_" in call.data:
+        action, allowed_user_id = call.data.split("_")
+        allowed_user_id = int(allowed_user_id)
 
-    if call.from_user.id != allowed_user_id:
-        bot.answer_callback_query(call.id, text="⛔ Эй, щас не твой ход! Жди своей очереди 😡", show_alert=True)
-        return
+        if call.from_user.id != allowed_user_id:
+            bot.answer_callback_query(call.id, text="Эй, щас не твой ход! Жди своей очереди 😡", show_alert=True)
+            return
 
-    if action == "truth":
-        random_truth = random.choice(TRUTHS)
-        bot.send_message(call.message.chat.id, f"💫 Ваш вопрос:\n\n{random_truth}", reply_markup=next_player_markup)
-    elif action == "dare":
-        random_dare = random.choice(DARES)
-        bot.send_message(call.message.chat.id, f"✨ Ваше задание:\n\n{random_dare}", reply_markup=next_player_markup)
+        if action == "truth":
+            random_truth = random.choice(TRUTHS)
+            bot.send_message(call.message.chat.id, f"💫 Ваш вопрос:\n\n{random_truth}", reply_markup=get_next_player_keyboard())
+        elif action == "dare":
+            random_dare = random.choice(DARES)
+            bot.send_message(call.message.chat.id, f"✨ Ваше задание:\n\n{random_dare}", reply_markup=get_next_player_keyboard())
+        
+        bot.answer_callback_query(call.id)
 
-    bot.answer_callback_query(call.id)
-
-@bot.message_handler(func=lambda message: message.text.lower() in ["стоп п/д", "конец п/д"])
+@bot.message_handler(func=lambda message: message.text.lower() in ["стоп п/д", "конец п/д", "хватит играть в п/д"])
 def stop_game(message):
     bot.send_message(message.chat.id, "Игра окончена! Если захочешь поиграть снова, ты знаешь, как меня позвать 😈")
+
 if __name__ == "__main__":
     print("Бот запущен...")
     bot.infinity_polling()
