@@ -1,6 +1,17 @@
 import os
 import telebot
 import random
+from flask import Flask
+import threading
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Бот работает!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 TOKEN = os.environ.get('BOT_TOKEN')
 
@@ -352,5 +363,7 @@ def stop_game(message):
     bot.send_message(message.chat.id, "Игра окончена! Если захочешь поиграть снова, ты знаешь, как меня позвать 😈")
 
 if __name__ == "__main__":
-    print("Бот запущен...")
+    print("Запуск фейкового веб-сервера...")
+    threading.Thread(target=run_flask, daemon=True).start() 
+    print("Бот успешно запущен...")
     bot.infinity_polling()
