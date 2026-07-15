@@ -302,34 +302,30 @@ DARES = [
 
 def get_keyboard():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn_truth = telebot.types.KeyboardButton("🌹Правда")
-    btn_dare = telebot.types.KeyboardButton("🥀Действие")
+    btn_truth = telebot.types.KeyboardButton("🌹 Правда")
+    btn_dare = telebot.types.KeyboardButton("🥀 Действие")
     markup.add(btn_truth, btn_dare)
     return markup
 
 @bot.message_handler(func=lambda message: message.text.lower() in [ "п/д", "играем в п/д", "давайте играть в п/д", "давайте играть в правду или действие" ])
 def send_welcome(message):
-    bot.reply_to(
-        message, 
-        "Привет! Выбирай, дорогуша, правда или действие? 😈 ", 
-        reply_markup=get_keyboard() )
-@bot.message_handler(func=lambda message: message.text.lower() in ["стоп п/д", "конец п/д"])
+    bot.reply_to(message, "Привет! Выбирай, дорогуша, правда или действие? 😈 ", reply_markup=get_keyboard())
+@bot.message_handler(func=lambda message: message.text.lower() in ["стоп п/д", "конец п/д", "заканчиваем игру в п/д"])
 def stop_game(message):
     markup = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.chat.id, "Конец игры! Если захочешь поиграть, то ты знаешь, как меня позвать 😈", reply_markup=markup)
 
 next_player_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-btn_next = telebot.types.KeyboardButton("Выбор следующему участнику ➡️")
-next_player_markup.add(btn_next)
+next_player_markup.add(telebot.types.KeyboardButton("Выбор следующему участнику ➡️"))
 @bot.message_handler(func=lambda message: True)
 def handle_game(message):
     if message.text == "🌹 Правда":
         random_truth = random.choice(TRUTHS)
-        bot.reply_to(message, f"💫 Ваш вопрос:\n{random_truth}", reply_markup=next_player_markup)
+        bot.reply_to(message, f"💫 Ваш вопрос:\n\n{random_truth}", reply_markup=next_player_markup)
 
     elif message.text == "🥀 Действие":
         random_dare = random.choice(DARES)
-        bot.reply_to(message, f"✨ Ваше задание:\n{random_dare}", reply_markup=next_player_markup)
+        bot.reply_to(message, f"✨ Ваше задание:\n\n{random_dare}", reply_markup=next_player_markup)
         
     elif message.text == "Выбор следующему участнику ➡️":
         bot.send_message(message.chat.id, "Выбирай, дорогуша, правда или действие 😈", reply_markup=get_keyboard())
